@@ -1,0 +1,16 @@
+{
+  "name": "docx-rag",
+  "version": "0.1.0",
+  "description": "DOCX to RAG: extract text, chunk, index using /v1/rag/index and query using /v1/rag/query",
+  "entry": "docx_rag_skill.js",
+  "type": "tool",
+  "inputs": {
+    "action": {"type": "string", "description": "index|query"},
+    "filePath": {"type": "string", "description": "Path to the DOCX file on the host"},
+    "query": {"type": "string", "description": "Query for rag/query (used when action=query)"},
+    "topK": {"type": "integer", "description": "Top K results for query"}
+  },
+  "credentials": [
+    {"name": "Authorization", "type": "Bearer"}
+  ]
+}
