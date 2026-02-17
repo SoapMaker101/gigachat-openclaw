@@ -1,0 +1,22 @@
+{
+  "agents": {
+    "defaults": {
+      "llm": {
+        "provider": "gigachat",
+        "model": "GigaChat-2-Max"
+      }
+    }
+  },
+  "providers": {
+    "gigachat": {
+      "baseUrl": "http://127.0.0.1:8080/v1",
+      "apiKey": "${auth:gigachat:default}",
+      "api": "openai-completions",
+      "models": [
+        { "id": "GigaChat-2-Max",  "name": "GigaChat 2 Max",  "contextWindow": 131072, "maxOutputTokens": 8192 },
+        { "id": "GigaChat-2-Pro",  "name": "GigaChat 2 Pro",  "contextWindow": 131072, "maxOutputTokens": 8192 },
+        { "id": "GigaChat-2-Lite", "name": "GigaChat 2 Lite", "contextWindow": 131072, "maxOutputTokens": 8192 }
+      ]
+    }
+  }
+}

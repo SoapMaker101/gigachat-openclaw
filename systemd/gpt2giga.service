@@ -1,0 +1,17 @@
+[Unit]
+Description=GigaChat OpenAI Proxy (gpt2giga)
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/opt/gpt2giga
+EnvironmentFile=/opt/gpt2giga/.env
+ExecStart=/usr/local/bin/gpt2giga
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
