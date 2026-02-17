@@ -1,0 +1,6 @@
+{
+  "provider": "OpenAI",
+  "baseUrl": "https://api.openai.com/v1",
+  "model": "text-embedding-3",
+  "storePath": "./vectorStore.json"
+}

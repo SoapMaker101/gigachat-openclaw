@@ -2,6 +2,11 @@ import { openAIEmbeddingsToGigaChat, gigaChatEmbeddingsToOpenAI } from '../lib/m
 import { callGigaChat } from '../lib/gigachat-client.js';
 import { convertErrorToOpenAI } from '../lib/utils.js';
 import { vectorStore } from '../lib/vectorStore.js';
+import path from 'path';
+
+// Persist vector store between restarts
+const DATA_PATH = path.resolve(process.cwd(), 'vectorStore.json');
+try { vectorStore.loadFromDisk(DATA_PATH); console.log('[RAG] VectorStore loaded from disk:', DATA_PATH); } catch (e) { /* ignore */ }
 
 /**
  * Helper: get an embedding vector for a single text via GigaChat Embeddings API
@@ -59,6 +64,9 @@ export function registerEmbeddings(app, authManager, config) {
       console.log(`[Embed] ✅ ${Date.now() - t0}ms | Vectors: ${openAIResponse.data.length} | Dim: ${openAIResponse.data[0]?.embedding?.length}`);
       res.json(openAIResponse);
 
+      // Persist embeddings index state if any new vectors indexed via this call isn't available yet
+      // (Optional: delay to ensure all docs indexed before persisting)
+
     } catch (error) {
       console.error(`[Embed] ❌ ${Date.now() - t0}ms: ${error.message}`);
       res.status(500).json(convertErrorToOpenAI(error, 500));
@@ -89,6 +97,11 @@ export function registerEmbeddings(app, authManager, config) {
     try {
       const embedFn = async (text) => embedText(text, authManager, apiKey, scope, config, model);
       await vectorStore.addDocuments(docs, embedFn);
+      // Persist to disk after indexing
+      if (DATA_PATH) {
+        vectorStore.saveToDisk(DATA_PATH);
+        console.log('[RAG-Index] Persisted VectorStore to disk: ', DATA_PATH);
+      }
       console.log(`[RAG-Index] ✅ ${Date.now() - t0}ms | Total stored: ${vectorStore.entries.length}`);
       res.json({ ok: true, indexed: docs.length, total: vectorStore.entries.length });
     } catch (error) {
@@ -110,7 +123,7 @@ export function registerEmbeddings(app, authManager, config) {
 
     const apiKey = authHeader.slice(7).trim();
     const scope  = req.body.scope || config.defaultScope;
-    const { query, topK, model } = req.body;
+    const { query, topK } = req.body;
 
     if (!query) {
       return res.status(400).json({ error: { message: 'query is required' } });
